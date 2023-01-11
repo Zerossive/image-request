@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import Alert from "./components/Alert";
+import Header from "./components/Header";
+import Images from "./components/Images";
+import Input from "./components/Input";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [images, setImages] = useState([]);
+	const [alert, setAlert] = useState();
+	const [alertAnimationParent] = useAutoAnimate();
+
+	return (
+		<div
+			className='flex min-h-screen flex-col bg-primary-1 font-semibold text-primary-5'
+			ref={alertAnimationParent}
+		>
+			<Header />
+			<Input setImages={setImages} setAlert={setAlert} />
+			<Images images={images} setAlert={setAlert} />
+			{alert && <Alert alert={alert} setAlert={setAlert} />}
+		</div>
+	);
 }
 
 export default App;
