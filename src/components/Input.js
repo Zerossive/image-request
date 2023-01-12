@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Progress from "./Progress";
 
-function Input({ setImages, setAlert }) {
-	const [formPrompt, setFormPrompt] = useState("");
+function Input({ images, setImages, setAlert }) {
+	const [formPrompt, setFormPrompt] = useState("a fantasy landscape");
 	const [formCount, setFormCount] = useState(1);
-	const [formSource, setFormSource] = useState("");
+	const [formSource, setFormSource] = useState(
+		"https://hexequin-openjourney.hf.space/run/predict"
+	);
+	const [progressValues, setProgressValues] = useState({});
+
+	// Request state
+	const [requesting, setRequesting] = useState(false);
+	// used in async for loop to correctly update request state
+	const reference = useRef();
+	reference.current = requesting;
 
 	const endpoints = [
 		{
@@ -20,8 +29,16 @@ function Input({ setImages, setAlert }) {
 			name: "Midjourney V4 Diffusion",
 		},
 		{
+			url: "https://hexequin-nitrosocke-redshift-diffusion.hf.space/run/predict",
+			name: "Redshift Diffusion",
+		},
+		{
 			url: "https://hexequin-linaqruf-anything-v3-0.hf.space/run/predict",
 			name: "Anything V3",
+		},
+		{
+			url: "https://hexequin-claudfuen-photorealistic-fuen-v1.hf.space/run/predict",
+			name: "Photorealistic Fuen V1",
 		},
 	];
 
@@ -38,24 +55,30 @@ function Input({ setImages, setAlert }) {
 		const count = formCount;
 		const source = formSource;
 
-		// Start progress bar alert
-		setAlert(<Progress current={0} total={count} />);
+		// Start progress bar
+		setProgressValues({ current: 0, total: count });
+		setRequesting(true);
 		let currentCount = 0;
 
 		// Make desired amount of API calls
 		for (let index = 1; index <= count; index++) {
+			if (!reference.current && index > 1) {
+				console.log("Request cancellation successful");
+				break;
+			}
+
 			const total = count;
 			try {
 				await getImage(index, total);
 			} catch (error) {
 				console.log("There was an error requesting an image:");
-				console.log(error);
 				setAlert(
 					<p>
 						Oops, there was an error generating an image. Try using
 						a difference source, or simply wait and try again.
 					</p>
 				);
+				setRequesting(false);
 			}
 		}
 
@@ -89,21 +112,33 @@ function Input({ setImages, setAlert }) {
 					},
 				]);
 
-			// Handle alert and progress bar
+			// Handle progress bar
 			currentCount++;
-			currentCount === total
-				? setAlert("")
-				: setAlert(<Progress current={currentCount} total={total} />);
+			if (currentCount === total) {
+				setProgressValues({});
+				setRequesting(false);
+			} else {
+				setProgressValues({ current: currentCount, total: total });
+			}
+
 			console.log("Generated:", seedPrompt);
 		}
 	};
 
-	// stop fetch, reset images, remove alert
-	const handleReset = () => {
+	// Cancel the following requests
+	const handleCancel = () => {
 		controller.abort();
+		setRequesting(false);
+		setAlert(
+			<p>Image request cancelled (one final image may still generate)</p>
+		);
+		console.log("Image request cancelled");
+	};
+
+	// Remove all current images from the page
+	const handleClearImages = () => {
 		setImages([]);
-		setAlert("");
-		console.log("Images reset");
+		console.log("Images cleared");
 	};
 
 	return (
@@ -140,7 +175,7 @@ function Input({ setImages, setAlert }) {
 					min={1}
 					max={20}
 					className='appearance-none rounded-lg bg-primary-3 p-3 font-normal focus:outline focus:outline-2 focus:outline-primary-4'
-					style={{ "-moz-appearance": "textfield" }}
+					style={{ MozAppearance: "textfield" }}
 					value={formCount}
 					onChange={(e) => {
 						if (e.target.value > 20) {
@@ -158,13 +193,15 @@ function Input({ setImages, setAlert }) {
 					Select Generation Source{" "}
 					<em className='text-primary-4'>(or enter your own)</em>
 				</p>
+
+				{/* Preset set source selection */}
 				<ul className='flex flex-wrap gap-3'>
 					{endpoints.map((endpoint) => {
 						return (
 							<li key={endpoint.name}>
 								<button
 									type='button'
-									className='rounded-lg bg-primary-4 p-3 text-primary-2 duration-75 active:scale-95 active:bg-primary-3'
+									className='rounded-lg bg-primary-5 p-3 text-primary-2 duration-75 active:scale-95 active:bg-primary-3'
 									onClick={() => setFormSource(endpoint.url)}
 								>
 									{endpoint.name}
@@ -173,6 +210,8 @@ function Input({ setImages, setAlert }) {
 						);
 					})}
 				</ul>
+
+				{/* Custom source input */}
 				<input
 					type='url'
 					name='source'
@@ -184,21 +223,45 @@ function Input({ setImages, setAlert }) {
 			</label>
 
 			{/* Submit button */}
-			<div className='flex flex-row gap-6'>
+			{!requesting && (
 				<button
 					type='submit'
-					className='w-3/4 rounded-lg bg-secondary-3 p-3 text-secondary-1 duration-75 active:scale-95 active:bg-secondary-2'
+					className='flex-grow rounded-lg bg-secondary-3 p-3 text-secondary-1 duration-75 active:scale-95 active:bg-secondary-2'
 				>
 					Submit
 				</button>
+			)}
+
+			{/* Progress */}
+			{requesting && (
+				<div className='flex flex-row flex-wrap gap-6'>
+					{/* Progress bar */}
+					<Progress
+						current={progressValues.current}
+						total={progressValues.total}
+					/>
+
+					{/* Cancel button */}
+					<button
+						type='button'
+						className='flex-grow rounded-lg bg-secondary-3 p-3 text-secondary-1 duration-75 active:scale-95 active:bg-secondary-2'
+						onClick={handleCancel}
+					>
+						Cancel
+					</button>
+				</div>
+			)}
+
+			{/* Clear images button */}
+			{images[0] && (
 				<button
 					type='button'
-					className='w-1/4 rounded-lg bg-tertiary-3 p-3 text-tertiary-1 duration-75 active:scale-95 active:bg-primary-4'
-					onClick={handleReset}
+					className='rounded-lg bg-primary-5 p-3 text-primary-1 duration-75 active:scale-95 active:bg-primary-4'
+					onClick={handleClearImages}
 				>
-					Reset
+					Clear Images
 				</button>
-			</div>
+			)}
 		</form>
 	);
 }

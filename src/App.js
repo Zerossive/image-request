@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Alert from "./components/Alert";
 import Header from "./components/Header";
 import Images from "./components/Images";
@@ -16,7 +16,7 @@ function App() {
 			ref={alertAnimationParent}
 		>
 			<Header />
-			<Input setImages={setImages} setAlert={setAlert} />
+			<Input images={images} setImages={setImages} setAlert={setAlert} />
 			<Images images={images} setAlert={setAlert} />
 			{alert && <Alert alert={alert} setAlert={setAlert} />}
 		</div>

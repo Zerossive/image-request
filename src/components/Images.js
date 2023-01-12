@@ -5,10 +5,12 @@ function Images({ images, setAlert }) {
 	const [imagesAnimationParent] = useAutoAnimate();
 
 	const handleImageClick = (url, prompt, source) => {
-		// navigator.clipboard.writeText(prompt);
 		setAlert(
 			<div className='grid h-full max-h-fit w-full flex-col place-items-start gap-6 md:grid-cols-[auto_1fr]'>
+				{/* Image */}
 				<img src={url} alt={prompt} className='rounded-lg' />
+
+				{/* Image info */}
 				<article className='grid gap-3'>
 					{/* Prompt info */}
 					<div className='grid gap-1'>
