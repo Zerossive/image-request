@@ -64,7 +64,7 @@ function Images({ images, setAlert }) {
 
 	return (
 		<ul
-			className='flex flex-grow flex-col-reverse items-center justify-end gap-6 bg-primary-2 pb-24 md:flex-row-reverse md:flex-wrap-reverse md:items-end md:px-6'
+			className='flex flex-grow flex-col-reverse items-center justify-end gap-6 bg-primary-2 pb-6 md:flex-row-reverse md:flex-wrap-reverse md:items-end md:px-6'
 			ref={imagesAnimationParent}
 		>
 			{images.map((image) => {
@@ -72,6 +72,7 @@ function Images({ images, setAlert }) {
 					<li
 						key={image.prompt}
 						className='group relative px-6 md:px-0'
+						// ref={imagesAnimationParent}
 					>
 						<img
 							src={image.url}

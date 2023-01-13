@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import Progress from "./Progress";
 
 function Input({ images, setImages, setAlert }) {
-	const [formPrompt, setFormPrompt] = useState("a fantasy landscape");
+	const [formPrompt, setFormPrompt] = useState("");
 	const [formCount, setFormCount] = useState(1);
 	const [formSource, setFormSource] = useState(
 		"https://hexequin-openjourney.hf.space/run/predict"
@@ -88,7 +88,7 @@ function Input({ images, setImages, setAlert }) {
 			const seed = new Date().getTime();
 			const seedPrompt = prompt + ", " + seed + index;
 
-			// make request
+			// make request and wait for response
 			let response = await fetch(source, {
 				method: "POST",
 				signal: signal,
@@ -100,6 +100,14 @@ function Input({ images, setImages, setAlert }) {
 				}),
 			});
 			const image = await response.json();
+
+			// Ignore the response if generation cancelled
+			if (reference.current === false) {
+				console.log(
+					"API response ignored because image generation was cancelled"
+				);
+				return;
+			}
 
 			// set new state
 			image.data[0] &&
@@ -129,9 +137,6 @@ function Input({ images, setImages, setAlert }) {
 	const handleCancel = () => {
 		controller.abort();
 		setRequesting(false);
-		setAlert(
-			<p>Image request cancelled (one final image may still generate)</p>
-		);
 		console.log("Image request cancelled");
 	};
 
@@ -143,7 +148,7 @@ function Input({ images, setImages, setAlert }) {
 
 	return (
 		<form
-			className='flex flex-col gap-6 rounded-t-3xl bg-primary-2 p-6'
+			className='flex flex-col gap-6 bg-primary-2 px-6 pb-6'
 			onSubmit={handleSubmit}
 		>
 			{/* Prompt input */}
@@ -158,6 +163,7 @@ function Input({ images, setImages, setAlert }) {
 					type='text'
 					name='prompt'
 					className='rounded-lg bg-primary-3 p-3 font-normal focus:outline focus:outline-2 focus:outline-primary-4'
+					placeholder='a fantasy landscape'
 					value={formPrompt}
 					onChange={(e) => setFormPrompt(e.target.value)}
 				/>
@@ -234,7 +240,7 @@ function Input({ images, setImages, setAlert }) {
 
 			{/* Progress */}
 			{requesting && (
-				<div className='flex flex-row flex-wrap gap-6'>
+				<div className='flex flex-row flex-wrap gap-3'>
 					{/* Progress bar */}
 					<Progress
 						current={progressValues.current}
