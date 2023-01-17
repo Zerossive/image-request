@@ -60,6 +60,9 @@ function Input({ images, setImages, setAlert }) {
 		setRequesting(true);
 		let currentCount = 0;
 
+		// close alert panel
+		setAlert("");
+
 		// Make desired amount of API calls
 		for (let index = 1; index <= count; index++) {
 			if (!reference.current && index > 1) {
@@ -71,7 +74,9 @@ function Input({ images, setImages, setAlert }) {
 			try {
 				await getImage(index, total);
 			} catch (error) {
-				console.log("There was an error requesting an image:");
+				console.log(
+					"There was an error requesting an image, so further requests have been cancelled"
+				);
 				setAlert(
 					<p>
 						Oops, there was an error generating an image. Try using
@@ -79,6 +84,7 @@ function Input({ images, setImages, setAlert }) {
 					</p>
 				);
 				setRequesting(false);
+				break;
 			}
 		}
 
@@ -164,6 +170,7 @@ function Input({ images, setImages, setAlert }) {
 					name='prompt'
 					className='rounded-lg bg-primary-3 p-3 font-normal focus:outline focus:outline-2 focus:outline-primary-4'
 					placeholder='a fantasy landscape'
+					autoComplete='off'
 					value={formPrompt}
 					onChange={(e) => setFormPrompt(e.target.value)}
 				/>
@@ -223,6 +230,7 @@ function Input({ images, setImages, setAlert }) {
 					name='source'
 					className='rounded-lg bg-primary-3 p-3 font-normal focus:outline focus:outline-2 focus:outline-primary-4'
 					value={formSource}
+					placeholder='https://hexequin-openjourney.hf.space/run/predict'
 					onChange={(e) => setFormSource(e.target.value)}
 					required
 				/>

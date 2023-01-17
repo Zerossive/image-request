@@ -72,7 +72,7 @@ function Images({ images, setAlert }) {
 					<li
 						key={image.prompt}
 						className='group relative px-6 md:px-0'
-						// ref={imagesAnimationParent}
+						tabIndex={0}
 					>
 						<img
 							src={image.url}
