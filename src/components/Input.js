@@ -37,6 +37,10 @@ function Input({ images, setImages, setAlert }) {
 			name: "Anything V3",
 		},
 		{
+			url: "https://hexequin-andite-anything-v4-0.hf.space/run/predict",
+			name: "Anything V4",
+		},
+		{
 			url: "https://hexequin-claudfuen-photorealistic-fuen-v1.hf.space/run/predict",
 			name: "Photorealistic Fuen V1",
 		},
