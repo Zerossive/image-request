@@ -25,10 +25,6 @@ function Input({ images, setImages, setAlert }) {
 			name: "Openjourney V2",
 		},
 		{
-			url: "https://hexequin-flax-midjourney-v4-diffusion.hf.space/run/predict",
-			name: "Midjourney V4 Diffusion",
-		},
-		{
 			url: "https://hexequin-nitrosocke-redshift-diffusion.hf.space/run/predict",
 			name: "Redshift Diffusion",
 		},
