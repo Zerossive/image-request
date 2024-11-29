@@ -11,10 +11,10 @@ function Footer() {
 			<article className='md:text-right'>
 				<p>Want a website designed for you or your business?</p>
 				<a
-					href='https://dannyharris.info/contact'
+					href='https://dannyharris.dev/contact'
 					className='text-secondary-3'
 				>
-					dannyharris.info
+					dannyharris.dev
 				</a>
 			</article>
 		</footer>
